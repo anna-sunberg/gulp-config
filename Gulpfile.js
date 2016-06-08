@@ -5,12 +5,13 @@ var gulp = require('gulp'),
     coffee = require('gulp-coffee'),
     file = require('gulp-file'),
     gls = require('gulp-live-server'),
-    connect = require('gulp-connect')
+    connect = require('gulp-connect'),
+    path = require("path"),
+    fs = require('fs');
 
 gulp.task('default', ['server', 'watch']);
 
 gulp.task('watch', function() {
-    // change to ext whitelist
     watch(['dev/**/*.{coffee,js,png,gif,svg,html,tmpl,json,ttf}'], batch(function(events, done) {
         gulp.start('build-dev', done);
     }));
@@ -21,9 +22,17 @@ gulp.task('watch', function() {
 });
 
 gulp.task('server', function() {
+    var project = path.resolve('.').split('/').slice(-1)[0],
+        port = 3000;
+
+    try {
+        var conf = require(__dirname + '/gulp_conf.json');
+        port = conf.ports[project] || port;
+    } catch (err) {}
+
     connect.server({
-        root: 'build/www-unoptimized/',
-        port: 3500,
+        root: './build/www-unoptimized/',
+        port: port,
         livereload: true
     });
 });

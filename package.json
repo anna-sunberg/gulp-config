@@ -18,6 +18,7 @@
     "gulp-connect": "^4.0.0",
     "gulp-csslint": "^0.3.1",
     "gulp-file": "^0.3.0",
-    "gulp-watch": "^4.3.6"
+    "gulp-watch": "^4.3.6",
+    "path": "^0.12.7"
   }
 }
