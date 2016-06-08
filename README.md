@@ -1,3 +1,8 @@
+# Installation:
+
+    npm install -g gulp
+    npm install
+
 # Usage:
 
     gulp --cwd <project_name>
