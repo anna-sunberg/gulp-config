@@ -1,5 +1,6 @@
 var gulp = require('gulp'),
     coffeelint = require('gulp-coffeelint'),
+    csslint = require('gulp-csslint'),
     watch = require('gulp-watch'),
     batch = require('gulp-batch'),
     coffee = require('gulp-coffee'),
@@ -7,9 +8,7 @@ var gulp = require('gulp'),
     gls = require('gulp-live-server'),
     connect = require('gulp-connect'),
     path = require("path"),
-    fs = require('fs'),
-    timeout,
-    running = false;
+    fs = require('fs');
 
 gulp.task('default', ['server', 'watch']);
 
@@ -50,6 +49,8 @@ gulp.task('server', function() {
 
 gulp.task('build-dev', ['build-coffee', 'copy-nls', 'copy-templates', 'copy-assets', 'create-cordova']);
 
+gulp.task('lint', ['coffeelint', 'csslint']);
+
 gulp.task('css', function() {
     return gulp.src('./dev/www/**/*.css')
         .pipe(gulp.dest('./build/www-unoptimized/'))
@@ -86,4 +87,18 @@ gulp.task('create-cordova', function() {
     return file('cordova.js', "{}", {src: true})
         .pipe(gulp.dest('./build/www-unoptimized/'))
         .pipe(connect.reload());
+});
+
+gulp.task('coffeelint', function() {
+    return gulp.src('./dev/coffeescript/**/*.coffee')
+        .pipe(coffeelint('coffeelint.json'))
+        .pipe(coffeelint.reporter());
+});
+
+gulp.task('csslint', function() {
+    return gulp.src('./dev/www/css/{page,common}/**/*.css')
+        .pipe(csslint({
+
+        }))
+        .pipe(csslint.reporter());
 });
