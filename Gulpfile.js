@@ -7,18 +7,29 @@ var gulp = require('gulp'),
     gls = require('gulp-live-server'),
     connect = require('gulp-connect'),
     path = require("path"),
-    fs = require('fs');
+    fs = require('fs'),
+    timeout,
+    running = false;
 
 gulp.task('default', ['server', 'watch']);
 
 gulp.task('watch', function() {
-    watch(['dev/**/*.{coffee,js,png,gif,svg,html,tmpl,json,ttf}'], batch(function(events, done) {
-        gulp.start('build-dev', done);
-    }));
+    gulp.watch('./dev/**/*.{coffee,nls,tmpl,html,jpg,gif,png,svg,js,tiff}', ['build-dev'], batch(function(events, done) {
+        events.on('end', done);
+    })).on('error', function(error) {
+        // silently catch 'ENOENT' error typically caused by renaming watched folders
+        if (error.code === 'ENOENT') {
+            return;
+        }
+    }); 
 
-    watch('dev/**/*.css', batch(function(events, done) {
-        gulp.start('css', done);
-    }));
+    gulp.watch('./dev/**/*.css', ['css'])
+        .on('error', function(error) {
+            // silently catch 'ENOENT' error typically caused by renaming watched folders
+            if (error.code === 'ENOENT') {
+                return;
+            }
+        });    
 });
 
 gulp.task('server', function() {
@@ -37,27 +48,42 @@ gulp.task('server', function() {
     });
 });
 
+gulp.task('build-dev', ['build-coffee', 'copy-nls', 'copy-templates', 'copy-assets', 'create-cordova']);
+
 gulp.task('css', function() {
-    gulp.src('./dev/www/**/*.css')
+    return gulp.src('./dev/www/**/*.css')
         .pipe(gulp.dest('./build/www-unoptimized/'))
         .pipe(connect.reload());
 });
 
-gulp.task('build-dev', function() {
-        gulp.src('./dev/coffeescript/**/*.coffee')
-            .pipe(coffee({bare:true}).on('error', console.log))
-            .pipe(gulp.dest('./build/www-unoptimized/js/'));
+gulp.task('build-coffee', function() {
+    return gulp.src('./dev/coffeescript/**')
+        .pipe(coffee({bare:true})
+        .on('error', console.log))
+        .pipe(gulp.dest('./build/www-unoptimized/js/'))
+        .pipe(connect.reload());
+});
 
-        gulp.src('./dev/nls/**')
-            .pipe(gulp.dest('./build/www-unoptimized/nls/'));
+gulp.task('copy-nls', function() {
+    return gulp.src('./dev/nls/**')
+        .pipe(gulp.dest('./build/www-unoptimized/nls/'))
+        .pipe(connect.reload());
+});
 
-        gulp.src('./dev/templates/**')
-            .pipe(gulp.dest('./build/www-unoptimized/templates/'));
+gulp.task('copy-templates', function() {
+    return gulp.src('./dev/templates/**')
+        .pipe(gulp.dest('./build/www-unoptimized/templates/'))
+        .pipe(connect.reload());
+});
 
-        gulp.src('./dev/www/**')
-            .pipe(gulp.dest('./build/www-unoptimized/'));
+gulp.task('copy-assets', function() {
+    return gulp.src('./dev/www/**')
+        .pipe(gulp.dest('./build/www-unoptimized/'))
+        .pipe(connect.reload());
+});
 
-        file('cordova.js', Math.random(), {src: true})
-            .pipe(gulp.dest('./build/www-unoptimized/'))
-            .pipe(connect.reload());
+gulp.task('create-cordova', function() {
+    return file('cordova.js', "{}", {src: true})
+        .pipe(gulp.dest('./build/www-unoptimized/'))
+        .pipe(connect.reload());
 });
