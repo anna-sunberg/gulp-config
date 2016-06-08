@@ -3,6 +3,18 @@
     gulp --cwd <project_name>
 
 # Other commands:
+Lint:
+
+    gulp lint
+
+Coffee lint:
+    
+    gulp coffeelint
+
+CSS lint:
+
+    gulp csslint    
+
 Watch without server:    
 
     gulp watch
@@ -23,4 +35,3 @@ CSS only build:
 
 - Production build
 - Cordova builds
-- Lint
