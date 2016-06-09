@@ -1,11 +1,9 @@
 var gulp = require('gulp'),
     coffeelint = require('gulp-coffeelint'),
     csslint = require('gulp-csslint'),
-    watch = require('gulp-watch'),
     batch = require('gulp-batch'),
     coffee = require('gulp-coffee'),
     file = require('gulp-file'),
-    gls = require('gulp-live-server'),
     connect = require('gulp-connect'),
     path = require("path"),
     fs = require('fs');
@@ -15,12 +13,12 @@ gulp.task('default', ['server', 'watch']);
 gulp.task('watch', function() {
     gulp.watch('./dev/**/*.{coffee,nls,tmpl,html,jpg,gif,png,svg,js,tiff}', ['build-dev'], batch(function(events, done) {
         events.on('end', done);
-    })).on('error', function(error) {
-        // silently catch 'ENOENT' error typically caused by renaming watched folders
-        if (error.code === 'ENOENT') {
-            return;
-        }
-    }); 
+        })).on('error', function(error) {
+            // silently catch 'ENOENT' error typically caused by renaming watched folders
+            if (error.code === 'ENOENT') {
+                return;
+            }
+        }); 
 
     gulp.watch('./dev/**/*.css', ['css'])
         .on('error', function(error) {
@@ -98,7 +96,9 @@ gulp.task('coffeelint', function() {
 gulp.task('csslint', function() {
     return gulp.src('./dev/www/css/{page,common}/**/*.css')
         .pipe(csslint({
-
+            "bulletproof-font-face": false,
+            "import": false,
+            "known-properties": false
         }))
         .pipe(csslint.reporter());
 });
