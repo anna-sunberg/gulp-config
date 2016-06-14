@@ -23,8 +23,9 @@ gulp.task('watch', function() {
             }
         }); 
 
-    gulp.watch('./dev/**/*.css', ['css'])
-        .on('error', function(error) {
+    gulp.watch('./dev/**/*.css', ['notify-css'], batch(function(events, done) {
+            events.on('end', done);
+        })).on('error', function(error) {
             // silently catch 'ENOENT' error typically caused by renaming watched folders
             if (error.code === 'ENOENT') {
                 return;
@@ -51,6 +52,12 @@ gulp.task('server', function() {
 gulp.task('notify', ['build-dev'], function() {
     return gulp.src('./build/www-unoptimized/cordova.js')
       .pipe(notify('Build done: ' + project))
+      .pipe(connect.reload());
+});
+
+gulp.task('notify-css', ['css'], function() {
+    return gulp.src('./build/www-unoptimized/cordova.js')
+      .pipe(notify('CSS updated: ' + project))
       .pipe(connect.reload());
 });
 
