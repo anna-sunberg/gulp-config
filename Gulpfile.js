@@ -56,7 +56,7 @@ gulp.task('notify', ['build-dev'], function() {
 });
 
 gulp.task('notify-css', ['css'], function() {
-    return gulp.src('./build/www-unoptimized/cordova.js')
+    return gulp.src('./build/www-unoptimized/css/*.css')
       .pipe(notify('CSS updated: ' + project))
       .pipe(connect.reload());
 });
