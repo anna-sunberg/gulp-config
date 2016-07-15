@@ -5,15 +5,20 @@ Put Gulpfile.js and package.json one level higher in directory structure than yo
     npm install
 
 # Conf:
-By default port 3000 is used. To conf separate ports for each project, create gulp_conf.json, with the following structure:
+By default port 3000 is used. To conf separate ports for each project, create _gulp_conf.json, with the following structure:
 
     {
         "ports": {
             "project_dir_1": 3001,
             "project_dir_2": 3002,
             "project_dir_3": 3003
+        },
+        "sass": {
+            "project_dir_2": true
         }
-    } 
+    }
+
+Set "sass" to true for projects that use SASS (CSS is used by default).
 
 # Usage:
 
@@ -31,6 +36,10 @@ Coffee lint:
 CSS lint:
 
     gulp csslint    
+
+SCSS lint:
+
+    gulp scsslint    
 
 Watch without server:    
 
