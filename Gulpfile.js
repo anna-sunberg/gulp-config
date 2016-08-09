@@ -78,6 +78,22 @@ gulp.task('server', function() {
     });
 });
 
+gulp.task('server-opt', function() {
+    project = path.resolve('.').split('/').slice(-1)[0];
+    var port = 3000;
+
+    try {
+        var conf = require(__dirname + '/_gulp_conf.json');
+        port = conf.ports[project] || port;
+    } catch (err) {}
+
+    connect.server({
+        root: './build/www/',
+        port: port,
+        livereload: true
+    });
+});
+
 gulp.task('notify', ['build-dev'], function() {
     return gulp.src('./build/www-unoptimized/cordova.js')
       .pipe(notify('Build done: ' + project))
