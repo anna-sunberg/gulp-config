@@ -13,10 +13,10 @@ var gulp = require('gulp'),
     plumber = require('gulp-plumber'),
     project;
 
-gulp.task('default', ['server', 'watch']);
+gulp.task('default', ['server', 'watch', 'notify']);
 
 gulp.task('watch', function() {
-    gulp.watch('./dev/**/*.{coffee,nls,tmpl,html,jpg,gif,png,svg,js,tiff}', ['notify'], batch(function(events, done) {
+    gulp.watch('./dev/**/*.{coffee,json,tmpl,html,jpg,gif,png,svg,js,tiff}', ['notify'], batch(function(events, done) {
             events.on('end', done);
         })).on('error', function(error) {
             // silently catch 'ENOENT' error typically caused by renaming watched folders
@@ -27,7 +27,7 @@ gulp.task('watch', function() {
 
     var sass = false;
     try {
-        var conf = require(__dirname + '/gulp_conf.json');
+        var conf = require(__dirname + '/_gulp_conf.json');
         sass = conf.sass[project] || false;
     } catch (err) {}
 
