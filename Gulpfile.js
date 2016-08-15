@@ -11,6 +11,7 @@ var gulp = require('gulp'),
     sass = require('gulp-sass'),
     sasslint = require('gulp-sass-lint'),
     plumber = require('gulp-plumber'),
+    replace = require('gulp-replace'),
     project;
 
 gulp.task('default', ['server', 'watch', 'notify']);
@@ -112,7 +113,7 @@ gulp.task('notify-scss', ['scss'], function() {
       .pipe(connect.reload());
 });
 
-gulp.task('build-dev', ['build-coffee', 'copy-nls', 'copy-templates', 'copy-assets', 'create-cordova']);
+gulp.task('build-dev', ['build-coffee', 'copy-nls', 'copy-templates', 'copy-index', 'create-cordova']);
 
 gulp.task('lint', ['coffeelint', 'csslint']);
 
@@ -159,6 +160,12 @@ gulp.task('copy-templates', function() {
 
 gulp.task('copy-assets', function() {
     return gulp.src('./dev/www/**')
+        .pipe(gulp.dest('./build/www-unoptimized/'));
+});
+
+gulp.task('copy-index', ['copy-assets'], function() {
+    return gulp.src('./dev/www/index.html')
+        .pipe(replace('_${project.version}', ''))
         .pipe(gulp.dest('./build/www-unoptimized/'));
 });
 
