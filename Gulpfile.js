@@ -12,27 +12,45 @@ var gulp = require('gulp'),
     sasslint = require('gulp-sass-lint'),
     plumber = require('gulp-plumber'),
     replace = require('gulp-replace'),
-    project;
+    project,
+    port = 3000,
+    scssEnabled = false,
+    cssExt;
+
+try {
+    var conf = require(__dirname + '/_gulp_conf.json');
+    project = path.resolve('.').split('/').slice(-1)[0];
+    port = conf.ports[project] || port;
+    scssEnabled = conf.sass[project] || false;
+} catch (err) {}
+
+cssExt = scssEnabled ? 'scss' : 'css';
 
 gulp.task('default', ['server', 'watch', 'notify']);
 
 gulp.task('watch', function() {
+    /* watch task for non-css files */
     gulp.watch('./dev/**/*.{coffee,json,tmpl,html,jpg,gif,png,svg,js,tiff}', ['notify'], batch(function(events, done) {
-            events.on('end', done);
-        })).on('error', function(error) {
-            // silently catch 'ENOENT' error typically caused by renaming watched folders
-            if (error.code === 'ENOENT') {
-                return;
-            }
-        }); 
+        events.on('end', done);
+    })).on('error', function(error) {
+        // silently catch 'ENOENT' error typically caused by renaming watched folders
+        if (error.code === 'ENOENT') {
+            return;
+        }
+    });
 
-    var sass = false;
-    try {
-        var conf = require(__dirname + '/_gulp_conf.json');
-        sass = conf.sass[project] || false;
-    } catch (err) {}
+    /* SCSS/CSS task */
+    gulp.watch('./dev/**/*.' + cssExt, ['notify-css'], batch(function(events, done) {
+        events.on('end', done);
+    })).on('error', function(error) {
+        // silently catch 'ENOENT' error typically caused by renaming watched folders
+        if (error.code === 'ENOENT') {
+            return;
+        }
+    });
 
-    if (sass) {
+    /* SCSS needs a separate task for copying external css */
+    if (scssEnabled) {
         gulp.watch('./dev/www/external_css/**/*.*', ['css-external'], batch(function(events, done) {
             events.on('end', done);
         })).on('error', function(error) {
@@ -41,30 +59,10 @@ gulp.task('watch', function() {
                 return;
             }
         });
-
-        gulp.watch('./dev/**/*.scss', ['notify-scss'], batch(function(events, done) {
-            events.on('end', done);
-        })).on('error', function(error) {
-            // silently catch 'ENOENT' error typically caused by renaming watched folders
-            if (error.code === 'ENOENT') {
-                return;
-            }
-        });
-    } else {
-        gulp.watch('./dev/**/*.css', ['notify-css'], batch(function(events, done) {
-            events.on('end', done);
-        })).on('error', function(error) {
-            // silently catch 'ENOENT' error typically caused by renaming watched folders
-            if (error.code === 'ENOENT') {
-                return;
-            }
-        });   
-    }
-       
+    }   
 });
 
 gulp.task('server', function() {
-    project = path.resolve('.').split('/').slice(-1)[0];
     var port = 3000;
 
     try {
@@ -80,14 +78,6 @@ gulp.task('server', function() {
 });
 
 gulp.task('server-opt', function() {
-    project = path.resolve('.').split('/').slice(-1)[0];
-    var port = 3000;
-
-    try {
-        var conf = require(__dirname + '/_gulp_conf.json');
-        port = conf.ports[project] || port;
-    } catch (err) {}
-
     connect.server({
         root: './build/www/',
         port: port,
@@ -101,19 +91,18 @@ gulp.task('notify', ['build-dev'], function() {
       .pipe(connect.reload());
 });
 
-gulp.task('notify-css', ['css'], function() {
+gulp.task('notify-css', [cssExt], function() {
     return gulp.src('./build/www-unoptimized/css/*.css')
       .pipe(notify('CSS updated: ' + project))
       .pipe(connect.reload());
 });
 
-gulp.task('notify-scss', ['scss'], function() {
-    return gulp.src('./build/www-unoptimized/**/*.css')
-      .pipe(notify('CSS updated: ' + project))
-      .pipe(connect.reload());
-});
+tasks = ['build-coffee', 'copy-nls', 'copy-templates', 'copy-index', 'create-cordova'];
+if (scssEnabled) {
+    tasks.push('scss');
+}
 
-gulp.task('build-dev', ['build-coffee', 'copy-nls', 'copy-templates', 'copy-index', 'create-cordova']);
+gulp.task('build-dev', tasks);
 
 gulp.task('lint', ['coffeelint', 'csslint']);
 
