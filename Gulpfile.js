@@ -12,6 +12,7 @@ var gulp = require('gulp'),
     sasslint = require('gulp-sass-lint'),
     plumber = require('gulp-plumber'),
     replace = require('gulp-replace'),
+    sourcemaps = require('gulp-sourcemaps'),
     project,
     port = 3000,
     scssEnabled = false,
@@ -63,13 +64,6 @@ gulp.task('watch', function() {
 });
 
 gulp.task('server', function() {
-    var port = 3000;
-
-    try {
-        var conf = require(__dirname + '/_gulp_conf.json');
-        port = conf.ports[project] || port;
-    } catch (err) {}
-
     connect.server({
         root: './build/www-unoptimized/',
         port: port,
@@ -80,6 +74,14 @@ gulp.task('server', function() {
 gulp.task('server-opt', function() {
     connect.server({
         root: './build/www/',
+        port: port,
+        livereload: true
+    });
+});
+
+gulp.task('server-root', function() {
+    connect.server({
+        root: '.',
         port: port,
         livereload: true
     });
@@ -130,10 +132,12 @@ gulp.task('scss-themes', function() {
 });
 
 gulp.task('build-coffee', function() {
-    return gulp.src('./dev/coffeescript/**')
+    return gulp.src('./dev/coffeescript/**/*.coffee', { base: 'dev/coffeescript' })
+        .pipe(sourcemaps.init())
         .pipe(plumber({errorHandler: notify.onError("Error")}))
-        .pipe(coffee({bare:true})
-        .on('error', printCoffeeError))
+            .pipe(coffee({bare:true})
+            .on('error', printCoffeeError))
+        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./build/www-unoptimized/js/'));
 });
 
