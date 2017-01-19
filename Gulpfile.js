@@ -12,6 +12,7 @@ var gulp = require('gulp'),
     sasslint = require('gulp-sass-lint'),
     plumber = require('gulp-plumber'),
     replace = require('gulp-replace'),
+    runSequence = require('run-sequence'),
     sourcemaps = require('gulp-sourcemaps'),
     project,
     port = 3000,
@@ -60,7 +61,7 @@ gulp.task('watch', function() {
                 return;
             }
         });
-    }   
+    }
 });
 
 gulp.task('server', function() {
@@ -132,6 +133,10 @@ gulp.task('scss-themes', function() {
 });
 
 gulp.task('build-coffee', function() {
+    runSequence('compile-coffee', 'app-version');
+});
+
+gulp.task('compile-coffee', function() {
     return gulp.src('./dev/coffeescript/**/*.coffee', { base: 'dev/coffeescript' })
         .pipe(sourcemaps.init())
         .pipe(plumber({errorHandler: notify.onError("Error")}))
@@ -139,6 +144,16 @@ gulp.task('build-coffee', function() {
             .on('error', printCoffeeError))
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./build/www-unoptimized/js/'));
+});
+
+gulp.task('app-version', function() {
+    var file = fs.readFileSync('./debian/changelog', 'utf8')
+    var regex = /((\d+\.)+(\d+\.)?(\*|\d+)?(~rc\d+))/;
+    var version = regex.exec(file)[1];
+    return gulp.src('./build/www-unoptimized/js/AppData.js', {base: './'})
+        .pipe(replace('${app.version}', version))
+        .pipe(gulp.dest('./'));
+
 });
 
 gulp.task('copy-nls', function() {
