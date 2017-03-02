@@ -119,16 +119,12 @@ gulp.task('css-external', function() {
         .pipe(connect.reload());
 });
 
-gulp.task('scss', ['scss-themes'], function() {
-    return gulp.src('./dev/scss/main.scss')
+gulp.task('scss', function() {
+    return gulp.src('./dev/scss/theme_support/*.scss')
+        .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
+        .pipe(sourcemaps.write())
         .pipe(gulp.dest('./build/www-unoptimized/css/'));
-});
-
-gulp.task('scss-themes', function() {
-    return gulp.src('./dev/scss/themes/external/*.scss')
-        .pipe(sass().on('error', sass.logError))
-        .pipe(gulp.dest('./build/www-unoptimized/css/themes/'));
 });
 
 gulp.task('build-coffee', function() {
