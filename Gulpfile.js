@@ -99,7 +99,7 @@ gulp.task('notify-css', [cssExt], function() {
       .pipe(connect.reload());
 });
 
-tasks = ['build-coffee', 'copy-nls', 'copy-templates', 'copy-index', 'create-cordova'];
+tasks = ['build-coffee', 'copy-nls', 'copy-templates', 'copy-modules', 'copy-index', 'create-cordova'];
 if (scssEnabled) {
     tasks.push('scss');
 }
@@ -128,7 +128,7 @@ gulp.task('scss', function() {
 });
 
 gulp.task('build-coffee', function() {
-    return gulp.src('./dev/coffeescript/**/*.coffee', { base: 'dev/coffeescript' })
+    return gulp.src('./dev/**/*.coffee', { base: 'dev/coffeescript' })
         .pipe(sourcemaps.init())
         .pipe(plumber({errorHandler: notify.onError("Error")}))
             .pipe(coffee({bare:true})
@@ -150,6 +150,11 @@ gulp.task('copy-templates', function() {
 gulp.task('copy-assets', function() {
     return gulp.src('./dev/www/**')
         .pipe(gulp.dest('./build/www-unoptimized/'));
+});
+
+gulp.task('copy-modules', function() {
+    return gulp.src('./dev/modules/**')
+        .pipe(gulp.dest('./build/www-unoptimized/modules/'));
 });
 
 gulp.task('copy-index', ['copy-assets'], function() {
