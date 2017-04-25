@@ -79,6 +79,14 @@ gulp.task('server-opt', function() {
     });
 });
 
+gulp.task('server-dist', function() {
+    connect.server({
+        root: './dist',
+        port: port,
+        livereload: true
+    });
+});
+
 gulp.task('server-root', function() {
     connect.server({
         root: '.',
@@ -129,6 +137,8 @@ gulp.task('scss', function() {
 
 gulp.task('build-coffee', function() {
     return gulp.src('./dev/**/*.coffee', { base: 'dev/coffeescript' })
+        .pipe(replace('${app.version}', '1.0'))
+        .pipe(replace(', app.supportedApiVersions', ''))
         .pipe(sourcemaps.init())
         .pipe(plumber({errorHandler: notify.onError("Error")}))
             .pipe(coffee({bare:true})
