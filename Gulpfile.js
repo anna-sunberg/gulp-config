@@ -21,7 +21,7 @@ var gulp = require('gulp'),
 try {
     var conf = require(__dirname + '/_gulp_conf.json');
     project = path.resolve('.').split('/').slice(-1)[0];
-    port = conf.ports[project] || port;
+    port = (conf.ports || {})[project] || port;
     scssEnabled = conf.sass[project] || false;
 } catch (err) {}
 
